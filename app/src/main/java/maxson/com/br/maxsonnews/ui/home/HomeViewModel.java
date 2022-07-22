@@ -4,27 +4,46 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import kotlin.collections.ArrayDeque;
+import maxson.com.br.maxsonnews.data.remote.SoccerNewsApi;
 import maxson.com.br.maxsonnews.domain.News;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HomeViewModel extends ViewModel {
 
-    public final MutableLiveData<List<News>> news;
+    private final MutableLiveData<List<News>> news = new MutableLiveData<>();
+    private final SoccerNewsApi api;
 
     public HomeViewModel() {
-        this.news = new MutableLiveData<>();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://maxsonsantana.github.io/android-news-api/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+       api = retrofit.create(SoccerNewsApi.class);
+        this.findNews();
+    }
 
-        //TODO: Remover Mock de Notícias
-        List<News> news = new ArrayList<>();
-        news.add(new News("Manchester joga com 7 jogadores a menos", "Jogando com 7 jogadores a manos, o Manchester vence Pato Branco fora de casa!!"));
-        news.add(new News("Ronaldo Volta para Real Madri", "Por falta de Dinheiro, Real Madri contrata Ronaldo pagando 1 salário mínimo(R$1.200,00)"));
-        news.add(new News("Ronaldinho Gaúcho joga pelo Corinthians", "Sem nada pra fazer Ronaldinho gaúcho resolve jogar no Corinthians"));
-
-        this.news.setValue(news);
-
+    private void findNews() {
+        api.getNews().enqueue(new Callback<List<News>>() {
+            @Override
+            public void onResponse(Call<List<News>> call, Response<List<News>> response) {
+                if(response.isSuccessful()){
+                    news.setValue((response.body()));
+                }else{
+                    //TODO: Tratamento de erros
+                }
+            }
+ 
+            @Override
+            public void onFailure(Call<List<News>> call, Throwable t) {
+                //TODO: Tratamento de erros
+            }
+        });
     }
 
     public LiveData<List<News>> getNews() {
