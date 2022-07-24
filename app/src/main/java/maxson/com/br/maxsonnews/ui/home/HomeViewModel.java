@@ -1,11 +1,15 @@
 package maxson.com.br.maxsonnews.ui.home;
 
+import android.app.Application;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.room.Room;
 
 import java.util.List;
 
+import maxson.com.br.maxsonnews.data.local.AppDataBase;
 import maxson.com.br.maxsonnews.data.remote.SoccerNewsApi;
 import maxson.com.br.maxsonnews.domain.News;
 import retrofit2.Call;
@@ -25,6 +29,7 @@ public class HomeViewModel extends ViewModel {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
        api = retrofit.create(SoccerNewsApi.class);
+
         this.findNews();
     }
 
